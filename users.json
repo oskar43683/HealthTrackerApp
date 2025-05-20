@@ -1,0 +1,20 @@
+[
+  {
+    "Username": "admin",
+    "Password": "admin123",
+    "IsAdmin": true,
+    "Workouts": []
+  },
+  {
+    "Username": "deneme",
+    "Password": "deneme",
+    "IsAdmin": false,
+    "Workouts": []
+  },
+  {
+    "Username": "test",
+    "Password": "test",
+    "IsAdmin": false,
+    "Workouts": []
+  }
+]

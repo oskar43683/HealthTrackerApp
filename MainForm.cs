@@ -5,13 +5,16 @@ using System.IO;
 using System.Linq;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Text.Json;
 
 namespace HealthTrackerApp
 {
     public class MainForm : Form
     {
+        private User currentUser;
+        private List<User> allUsers;
         private List<Workout> workouts;
-        private string dataFile = "workouts.txt";
+        private string dataFile = "users.json";
         private DateTimePicker datePicker;
         private ComboBox exerciseTypeCombo;
         private NumericUpDown hoursNumeric;
@@ -23,12 +26,20 @@ namespace HealthTrackerApp
         private Panel listPanel;
         private TextBox selectedNotesBox;
         private Label selectedNotesLabel;
+        private ComboBox userSelector;
+        private Button deleteWorkoutButton;
 
-        public MainForm()
+        public MainForm(User user)
         {
-            workouts = new List<Workout>();
+            currentUser = user;
+            workouts = user.Workouts;
+            allUsers = LoadAllUsers();
             InitializeComponent();
-            LoadWorkouts();
+            if (currentUser.IsAdmin)
+            {
+                SetupAdminControls();
+            }
+            RefreshWorkoutList(workoutList);
         }
 
         private void InitializeComponent()
@@ -404,48 +415,94 @@ namespace HealthTrackerApp
 
         private void SaveWorkouts()
         {
-            try
+            SaveAllUsers();
+        }
+
+        private List<User> LoadAllUsers()
+        {
+            if (File.Exists(dataFile))
             {
-                var lines = workouts.Select(w => 
-                    $"{w.Date}|{w.ExerciseType}|{w.Hours}|{w.Minutes}|{w.CaloriesBurned}|{w.Notes}");
-                File.WriteAllLines(dataFile, lines);
+                string json = File.ReadAllText(dataFile);
+                return JsonSerializer.Deserialize<List<User>>(json) ?? new List<User>();
             }
-            catch (Exception ex)
+            return new List<User>();
+        }
+
+        private void SetupAdminControls()
+        {
+            var userLabel = new Label
             {
-                MessageBox.Show($"Error saving workouts: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Text = "Select User:",
+                Location = new Point(25, 520),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 12F, FontStyle.Bold),
+                AutoSize = true
+            };
+
+            userSelector = new ComboBox
+            {
+                Location = new Point(120, 520),
+                Width = 200,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                BackColor = Color.FromArgb(45, 45, 45),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold)
+            };
+
+            deleteWorkoutButton = new Button
+            {
+                Text = "Delete Selected Workout",
+                Location = new Point(540, 680),
+                Size = new Size(200, 40),
+                BackColor = Color.FromArgb(220, 53, 69),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 11F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            deleteWorkoutButton.Click += DeleteWorkoutButton_Click;
+
+            userSelector.Items.AddRange(allUsers.Select(u => u.Username).ToArray());
+            userSelector.SelectedIndexChanged += UserSelector_SelectedIndexChanged;
+
+            inputPanel.Controls.Add(userLabel);
+            inputPanel.Controls.Add(userSelector);
+            this.Controls.Add(deleteWorkoutButton);
+        }
+
+        private void UserSelector_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (userSelector.SelectedItem != null)
+            {
+                string selectedUsername = userSelector.SelectedItem.ToString();
+                var selectedUser = allUsers.Find(u => u.Username == selectedUsername);
+                if (selectedUser != null)
+                {
+                    workouts = selectedUser.Workouts;
+                    RefreshWorkoutList(workoutList);
+                }
             }
         }
 
-        private void LoadWorkouts()
+        private void DeleteWorkoutButton_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(dataFile)) return;
-
-            try
+            if (workoutList.SelectedItem != null)
             {
-                var lines = File.ReadAllLines(dataFile);
-                foreach (var line in lines)
+                var selectedWorkout = workoutList.SelectedItem as Workout;
+                if (selectedWorkout != null)
                 {
-                    var parts = line.Split('|');
-                    if (parts.Length >= 5)
-                    {
-                        var workout = new Workout(
-                            DateTime.Parse(parts[0]),
-                            parts[1],
-                            int.Parse(parts[2]),
-                            int.Parse(parts[3]),
-                            int.Parse(parts[4]),
-                            parts.Length > 5 ? parts[5] : ""
-                        );
-                        workouts.Add(workout);
-                    }
+                    workouts.Remove(selectedWorkout);
+                    SaveAllUsers();
+                    RefreshWorkoutList(workoutList);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error loading workouts: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+        }
+
+        private void SaveAllUsers()
+        {
+            string json = JsonSerializer.Serialize(allUsers, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(dataFile, json);
         }
     }
 } 
