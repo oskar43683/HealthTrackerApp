@@ -11,7 +11,8 @@ namespace HealthTrackerApp
     public class MainForm : Form
     {
         private List<Workout> workouts;
-        private string dataFile = "workouts.txt";
+        private string dataFile;
+        private User currentUser;
         private DateTimePicker datePicker;
         private ComboBox exerciseTypeCombo;
         private NumericUpDown hoursNumeric;
@@ -24,9 +25,11 @@ namespace HealthTrackerApp
         private TextBox selectedNotesBox;
         private Label selectedNotesLabel;
 
-        public MainForm()
+        public MainForm(User user)
         {
+            currentUser = user;
             workouts = new List<Workout>();
+            dataFile = Path.Combine(user.UserDirectory, "workouts.txt");
             InitializeComponent();
             LoadWorkouts();
         }
@@ -266,33 +269,35 @@ namespace HealthTrackerApp
                 }
             };
 
-            addButton.Click += (sender, e) =>
+            addButton.Click += (s, e) =>
             {
-                if (string.IsNullOrEmpty(exerciseTypeCombo.Text) ||
-                    !int.TryParse(caloriesTextBox.Text, out int calories))
+                if (string.IsNullOrEmpty(exerciseTypeCombo.Text))
                 {
-                    MessageBox.Show("Please fill in all required fields with valid values.", "Validation Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Please select an exercise type.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                int hours = (int)hoursNumeric.Value;
-                int minutes = (int)minutesNumeric.Value;
-                if (hours == 0 && minutes == 0)
+                if (!int.TryParse(caloriesTextBox.Text, out int calories))
                 {
-                    MessageBox.Show("Duration must be greater than 0 minutes.", "Validation Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Please enter a valid number of calories.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-                var workout = new Workout(
-                    datePicker.Value,
-                    exerciseTypeCombo.Text,
-                    hours,
-                    minutes,
-                    calories,
-                    notesTextBox.Text
-                );
+                int totalMinutes = (int)(hoursNumeric.Value * 60 + minutesNumeric.Value);
+                if (totalMinutes == 0)
+                {
+                    MessageBox.Show("Please enter a duration greater than 0.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                var workout = new Workout
+                {
+                    Date = datePicker.Value,
+                    ExerciseType = exerciseTypeCombo.Text,
+                    Duration = totalMinutes,
+                    Calories = calories,
+                    Notes = notesTextBox.Text
+                };
 
                 workouts.Add(workout);
                 SaveWorkouts();
@@ -406,45 +411,55 @@ namespace HealthTrackerApp
         {
             try
             {
-                var lines = workouts.Select(w => 
-                    $"{w.Date}|{w.ExerciseType}|{w.Hours}|{w.Minutes}|{w.CaloriesBurned}|{w.Notes}");
-                File.WriteAllLines(dataFile, lines);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error saving workouts: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void LoadWorkouts()
-        {
-            if (!File.Exists(dataFile)) return;
-
-            try
-            {
-                var lines = File.ReadAllLines(dataFile);
-                foreach (var line in lines)
+                using (StreamWriter writer = new StreamWriter(dataFile))
                 {
-                    var parts = line.Split('|');
-                    if (parts.Length >= 5)
+                    foreach (var workout in workouts)
                     {
-                        var workout = new Workout(
-                            DateTime.Parse(parts[0]),
-                            parts[1],
-                            int.Parse(parts[2]),
-                            int.Parse(parts[3]),
-                            int.Parse(parts[4]),
-                            parts.Length > 5 ? parts[5] : ""
-                        );
-                        workouts.Add(workout);
+                        writer.WriteLine($"{workout.Date}|{workout.ExerciseType}|{workout.Duration}|{workout.Calories}|{workout.Notes}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error loading workouts: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error saving workouts: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void LoadWorkouts()
+        {
+            try
+            {
+                if (File.Exists(dataFile))
+                {
+                    workouts.Clear();
+                    string[] lines = File.ReadAllLines(dataFile);
+                    foreach (string line in lines)
+                    {
+                        string[] parts = line.Split('|');
+                        if (parts.Length >= 4)
+                        {
+                            DateTime date = DateTime.Parse(parts[0]);
+                            string exerciseType = parts[1];
+                            int duration = int.Parse(parts[2]);
+                            int calories = int.Parse(parts[3]);
+                            string notes = parts.Length > 4 ? parts[4] : "";
+
+                            workouts.Add(new Workout
+                            {
+                                Date = date,
+                                ExerciseType = exerciseType,
+                                Duration = duration,
+                                Calories = calories,
+                                Notes = notes
+                            });
+                        }
+                    }
+                    RefreshWorkoutList(workoutList);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading workouts: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

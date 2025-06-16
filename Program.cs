@@ -10,7 +10,15 @@ namespace HealthTrackerApp
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+
+            using (var loginForm = new LoginForm())
+            {
+                if (loginForm.ShowDialog() == DialogResult.OK)
+                {
+                    var mainForm = new MainForm(loginForm.CurrentUser);
+                    Application.Run(mainForm);
+                }
+            }
         }
     }
 } 
