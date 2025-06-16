@@ -1,0 +1,15 @@
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\bin\Debug\net6.0-windows\HealthTrackerApp.exe
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\bin\Debug\net6.0-windows\HealthTrackerApp.deps.json
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\bin\Debug\net6.0-windows\HealthTrackerApp.runtimeconfig.json
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\bin\Debug\net6.0-windows\HealthTrackerApp.dll
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\bin\Debug\net6.0-windows\HealthTrackerApp.pdb
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.AssemblyInfoInputs.cache
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.AssemblyInfo.cs
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.csproj.CoreCompileInputs.cache
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.sourcelink.json
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.dll
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\refint\HealthTrackerApp.dll
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.pdb
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\HealthTrackerApp.genruntimeconfig.cache
+C:\Users\oskar\Desktop\HealthTrackerApp\HealthTrackerApp\obj\Debug\net6.0-windows\ref\HealthTrackerApp.dll

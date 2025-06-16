@@ -21,7 +21,7 @@ namespace HealthTrackerApp
             string duration = hours > 0 
                 ? $"{hours}h {minutes}m" 
                 : $"{minutes}m";
-            return $"{Date.ToShortDateString()} - {ExerciseType} ({duration}, {Calories} cal)";
+            return $"{Date.ToString("yyyy-MM-dd")} - {ExerciseType} ({duration}, {Calories} cal)";
         }
     }
 } 

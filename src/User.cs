@@ -10,12 +10,18 @@ namespace HealthTrackerApp
         public string Username { get; private set; }
         public string PasswordHash { get; private set; }
         public string UserDirectory { get; private set; }
+        private static string _baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+        public static void SetBaseDirectory(string baseDirectory)
+        {
+            _baseDirectory = baseDirectory;
+        }
 
         public User(string username, string password)
         {
             Username = username;
             PasswordHash = HashPassword(password);
-            UserDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Users", username);
+            UserDirectory = Path.Combine(_baseDirectory, "Users", username);
             Directory.CreateDirectory(UserDirectory);
         }
 
@@ -42,7 +48,7 @@ namespace HealthTrackerApp
 
         public static User LoadUser(string username)
         {
-            string userDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Users", username);
+            string userDirectory = Path.Combine(_baseDirectory, "Users", username);
             string userPath = Path.Combine(userDirectory, "user.txt");
             
             if (!File.Exists(userPath))
